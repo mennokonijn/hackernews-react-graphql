@@ -10,6 +10,7 @@ const comment = sampleData.comments[0];
 // Snapshot will be out of date if we don't use consistent time ago for comment
 MockDate.set(1506022129802);
 
+
 describe('Comment component', () => {
   it('renders at different indentation levels', () => {
     const wrapper = render(<Comment {...comment} indentationLevel={0} />);
