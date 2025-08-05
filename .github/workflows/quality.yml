@@ -163,7 +163,7 @@ jobs:
 
       - name: Install CycloneDX SBOM Generator
         run: |
-          npm install --save-dev @cyclonedx/cyclonedx-npm2.3.0
+          npm install --save-dev @cyclonedx/cyclonedx-npm@2.3.0
 
       - name: Generate SBOM (CycloneDX JSON)
         run: |
