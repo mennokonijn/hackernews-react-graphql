@@ -45,24 +45,6 @@ jobs:
         run: |
           sleep 15
 
-      - name: Install Trivy
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-
-      - name: Run Trivy scan with SBOM, CVEs, and licenses
-        run: |
-          trivy fs --scanners vuln,license --format cyclonedx --output trivy-results.json .
-        continue-on-error: true
-
-      - name: Send Trivy results to API
-        run: |
-          curl -X POST https://d7f49f96a172.ngrok-free.app/api/metrics \
-            -H 'Content-Type: application/json' \
-            -H 'X-Tool-Name: Trivy' \
-            -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
-            --data @trivy-results.json
-      
-
       - name: Run OWASP ZAP Baseline Scan
         run: |
           docker run -u root --network host \
@@ -82,6 +64,18 @@ jobs:
             -H 'X-Tool-Name: ZAP' \
             -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
             --data @zap-report.json
+
+      - name: Check for outdated npm packages
+        run: |
+          npm outdated --json > outdated.json || true
+
+      - name: Send Outdated Packages to API
+        run: |
+          curl -X POST https://d7f49f96a172.ngrok-free.app/api/metrics \
+            -H 'Content-Type: application/json' \
+            -H 'X-Tool-Name: Outdated-Packages' \
+            -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
+            --data @outdated.json
 
       - name: Install Depcheck
         run: |
@@ -174,6 +168,23 @@ jobs:
             -H 'X-Tool-Name: SonarQube' \
             -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
             --data @sonar-results.json
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run Trivy scan with SBOM, CVEs, and licenses
+        run: |
+          trivy fs --scanners vuln,license --format cyclonedx --output trivy-results.json .
+        continue-on-error: true
+
+      - name: Send Trivy results to API
+        run: |
+          curl -X POST https://d7f49f96a172.ngrok-free.app/api/metrics \
+            -H 'Content-Type: application/json' \
+            -H 'X-Tool-Name: Trivy' \
+            -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
+            --data @trivy-results.json
 
       - name: Fetch JIRA Sprint Story Points
         run: |
