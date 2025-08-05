@@ -49,13 +49,9 @@ jobs:
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Generate SBOM with Trivy (CycloneDX)
+      - name: Run Trivy scan with SBOM, CVEs, and licenses
         run: |
-          trivy sbom --format cyclonedx --output bom.json .
-
-      - name: Scan SBOM for vulnerabilities and licenses
-        run: |
-          trivy sbom --scanners vuln,license --input bom.json --format json --output trivy-results.json
+          trivy fs --scanners vuln,license --format cyclonedx --output trivy-results.json .
         continue-on-error: true
 
       - name: Send Trivy results to API
@@ -65,6 +61,7 @@ jobs:
             -H 'X-Tool-Name: Trivy' \
             -H 'X-Repo-Name: https://github.com/mennokonijn/hackernews-react-graphql' \
             --data @trivy-results.json
+      
 
       - name: Run OWASP ZAP Baseline Scan
         run: |
